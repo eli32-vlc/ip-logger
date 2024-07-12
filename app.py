@@ -21,10 +21,38 @@ PASSWORD = os.getenv('URL_SHORTENER_PASSWORD')
 
 # User agents to ignore
 IGNORED_USER_AGENTS = [
+    # Discord bots
     "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
+    
+    # Facebook
     "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
-    "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QQ3A.200805.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.127 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+    
+    # Google
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0 (compatible; Googlebot-Image/1.0; +http://www.google.com/bot.html)",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    
+    # Bing
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)",
+    
+    # Twitter
+    "Twitterbot/1.0 (+http://www.twitter.com)",
+    "Mozilla/5.0 (compatible; Twitterbot/1.0; +http://www.twitter.com/; @twitterbot)",
+    
+    # Google
+    "Googlebot-News",
+    "Googlebot-Image",
+    "Googlebot-Video",
+    "Googlebot-AdsBot",
+    "Googlebot-Mobile",
+    
+    # Bing
+    "BingPreview/1.0 (+http://www.bing.com/bingpreview)",
+    
+    # Twitter
+    "Twitterbot/1.0",
+    "Twitterbot/2.0",
 ]
 
 # Ensure the data file exists
@@ -52,9 +80,13 @@ def log_to_discord(ip, user_agent, short_path, original_url):
         return  # Do not send webhook for ignored user agents
     # Remove 'https://' or 'http://' from the original URL
     original_url_no_https = original_url.replace('https://', '').replace('http://', '')
+    # Construct the full short URL
+    short_url = f"<{request.host_url}{short_path}>"
+    # Prepare the data to send to Discord
     data = {
-        "content": f"<@938005604230918204> IP: {ip}\nUser-Agent: {user_agent}\nShort URL: {request.host_url}{short_path}\nOriginal URL: {original_url_no_https}"
+        "content": f"<@938005604230918204> IP: {ip}\nUser-Agent: {user_agent}\nShort URL: {short_url}\nOriginal URL: {original_url_no_https}"
     }
+    # Send the webhook request
     response = requests.post(DISCORD_WEBHOOK_URL, json=data)
     if response.status_code != 204:
         print(f"Failed to send webhook: {response.status_code}, {response.text}")
