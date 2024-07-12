@@ -1,23 +1,19 @@
-from flask import Flask, request, redirect, session, url_for
+from flask import Flask, request, redirect, jsonify, session, url_for
 import json
 import string
 import random
 import requests
 import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Generate a random secret key
+app.secret_key = '1G5gG9AH0ZcrsXxv1qDW9UvuK1GUTVp3Q9BgtJdsk1Uol1btHc'  # Replace with your own secret key
 
 DATA_FILE = 'data.json'
-DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
+DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1261170300666646528/mhJM6vLfKt6k0w3EX361vdMHygdobbhQY2u_jMZH7bq1_GxqK23FBfVgcpkgbk6Glm5k'
 
-# Authentication credentials from environment variables
-USERNAME = os.getenv('URL_SHORTENER_USERNAME')
-PASSWORD = os.getenv('URL_SHORTENER_PASSWORD')
+# Authentication credentials
+USERNAME = 'eli32'
+PASSWORD = 'eason2830'  # Replace with a secure password
 
 # Ensure the data file exists
 if not os.path.exists(DATA_FILE):
