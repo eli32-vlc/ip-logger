@@ -21,4 +21,4 @@ ENV URL_SHORTENER_PASSWORD=eason2830
 
 EXPOSE 8080
 
-CMD ["gunicorn"  , "-b", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn"  , "-b", "0.0.0.0:8080", "app:app"]

