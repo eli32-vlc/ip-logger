@@ -1,0 +1,22 @@
+#Use an Ubuntu 18.04 base for our staging server
+FROM vm/ubuntu:22.04
+
+# To note: Layerfiles create entire VMs, *not* containers!
+
+# Install python
+RUN apt-get update && apt-get install python3 && apt install python3-pip -y
+
+
+# You could also install & start a database:
+# RUN apt-get update && apt-get install postgresql
+
+# This line copies the repository to /root in the runner
+COPY . .
+RUN ls
+RUN pip3 install -r requirements.txt
+
+# Expose the webserver in the staging server as a secure link.
+# Whenever someone clicks the link, we'll load this staging server and forward
+# their requests to it.
+RUN BACKGROUND gunicorn --timeout 0 --bind 0.0.0.0:80 wsgi:app
+EXPOSE WEBSITE http://localhost:80
