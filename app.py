@@ -4,7 +4,6 @@ import string
 import random
 import requests
 import os
-from urllib.parse import quote
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -19,14 +18,6 @@ DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
 # Authentication credentials from environment variables
 USERNAME = os.getenv('URL_SHORTENER_USERNAME')
 PASSWORD = os.getenv('URL_SHORTENER_PASSWORD')
-
-# User agents to ignore
-IGNORED_USER_AGENTS = [
-    "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
-    "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
-    "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QQ3A.200805.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.127 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-]
 
 # Ensure the data file exists
 if not os.path.exists(DATA_FILE):
@@ -49,8 +40,6 @@ def generate_short_url():
 
 # Function to log IP and user agent to Discord
 def log_to_discord(ip, user_agent):
-    if user_agent in IGNORED_USER_AGENTS:
-        return  # Do not send webhook for ignored user agents
     data = {
         "content": f"IP: {ip}\nUser-Agent: {user_agent}"
     }
@@ -94,7 +83,7 @@ def index():
         data = load_data()
         data['urls'][short_path] = original_url
         save_data(data)
-        return f"Short URL: {request.host_url}{quote(short_path)}"
+        return f"Short URL: {request.host_url}{short_path}"
     
     return '''
         <form method="post">
