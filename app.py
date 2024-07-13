@@ -5,12 +5,16 @@ import random
 import requests
 import os
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Generate a random secret key
+
+# Trust the proxy headers to get the real client IP address
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=0)
 
 DATA_FILE = 'data.json'
 DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL')
@@ -23,7 +27,7 @@ PASSWORD = os.getenv('URL_SHORTENER_PASSWORD')
 IGNORED_USER_AGENTS = [
     # Discord bots
     "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
     
     # Facebook
     "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
@@ -73,6 +77,15 @@ def save_data(data):
 # Function to generate a random string
 def generate_short_url():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+
+# Function to get the real client IP address
+def get_client_ip():
+    if 'X-Forwarded-For' in request.headers:
+        # X-Forwarded-For can contain a list of IPs
+        # The first IP is the original client's IP
+        return request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    else:
+        return request.remote_addr
 
 # Function to log IP, user agent, and URL to Discord
 def log_to_discord(ip, user_agent, short_path, original_url):
@@ -142,7 +155,7 @@ def redirect_url(short_path):
     data = load_data()
     if short_path in data['urls']:
         original_url = data['urls'][short_path]
-        ip = request.remote_addr
+        ip = get_client_ip()
         user_agent = request.headers.get('User-Agent')
         log_to_discord(ip, user_agent, short_path, original_url)
         return redirect(original_url)
