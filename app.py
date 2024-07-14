@@ -27,7 +27,7 @@ PASSWORD = os.getenv('URL_SHORTENER_PASSWORD')
 IGNORED_USER_AGENTS = [
     # Discord bots
     "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; AppleWebKit/537.36 (KHTML, like Gecko) DiscordBots/25.1.4 Chrome/102.0.5005.167 Electron/19.0.17 Safari/537.36",
     
     # Facebook
     "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
@@ -62,7 +62,7 @@ IGNORED_USER_AGENTS = [
 # Ensure the data file exists
 if not os.path.exists(DATA_FILE):
     with open(DATA_FILE, 'w') as f:
-        json.dump({"urls": []}, f)
+        json.dump({"urls": {}}, f)
 
 # Function to load data from the JSON file
 def load_data():
@@ -136,10 +136,13 @@ def index():
     
     if request.method == 'POST':
         original_url = request.form['original_url']
-        short_path = generate_short_url()
         data = load_data()
-        data['urls'].append({'short_path': short_path, 'original_url': original_url})
-        save_data(data)
+        # Check if the original URL already exists
+        short_path = next((k for k, v in data['urls'].items() if v == original_url), None)
+        if not short_path:
+            short_path = generate_short_url()
+            data['urls'][short_path] = original_url
+            save_data(data)
         return f"Short URL: {request.host_url}{short_path}"
     
     return '''
@@ -153,13 +156,12 @@ def index():
 @app.route('/<short_path>')
 def redirect_url(short_path):
     data = load_data()
-    for entry in data['urls']:
-        if entry['short_path'] == short_path:
-            original_url = entry['original_url']
-            ip = get_client_ip()
-            user_agent = request.headers.get('User-Agent')
-            log_to_discord(ip, user_agent, short_path, original_url)
-            return redirect(original_url)
+    if short_path in data['urls']:
+        original_url = data['urls'][short_path]
+        ip = get_client_ip()
+        user_agent = request.headers.get('User-Agent')
+        log_to_discord(ip, user_agent, short_path, original_url)
+        return redirect(original_url)
     return "URL not found", 404
 
 if __name__ == '__main__':
