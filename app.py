@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, session, url_for
+from flask import Flask, request, redirect, session, url_for, render_template
 import json
 import string
 import random
@@ -122,13 +122,7 @@ def login():
             session['logged_in'] = True
             return redirect(url_for('index'))
         return 'Invalid credentials', 401
-    return '''
-        <form method="post">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-    '''
+    return render_template('login.html')
 
 # Logout route
 @app.route('/logout')
@@ -152,13 +146,7 @@ def index():
             save_data(data)
         return f"Short URL: {request.host_url}{short_path}"
     
-    return '''
-        <form method="post">
-            <input type="url" name="original_url" placeholder="Enter URL" required>
-            <button type="submit">Shorten</button>
-        </form>
-        <a href="/logout">Logout</a>
-    '''
+    return render_template('index.html')
 
 @app.route('/<short_path>')
 def redirect_url(short_path):
