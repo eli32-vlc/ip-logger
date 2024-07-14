@@ -91,14 +91,31 @@ def get_client_ip():
 def log_to_discord(ip, user_agent, short_path, original_url):
     if user_agent in IGNORED_USER_AGENTS:
         return  # Do not send webhook for ignored user agents
+    
     # Remove 'https://' or 'http://' from the original URL
     original_url_no_https = original_url.replace('https://', '').replace('http://', '')
     # Construct the full short URL
     short_url = f"<{request.host_url}{short_path}>"
+    
+    # Get geolocation data
+    geo_response = requests.get(f"http://ip-api.com/json/{ip}")
+    geo_data = geo_response.json()
+    
+    # Format geolocation data
+    geo_info = (
+        f"Country: {geo_data.get('country', 'N/A')}\n"
+        f"Region: {geo_data.get('regionName', 'N/A')}\n"
+        f"City: {geo_data.get('city', 'N/A')}\n"
+        f"ISP: {geo_data.get('isp', 'N/A')}\n"
+        f"Org: {geo_data.get('org', 'N/A')}\n"
+        f"AS: {geo_data.get('as', 'N/A')}\n"
+    )
+    
     # Prepare the data to send to Discord
     data = {
-        "content": f"<@938005604230918204> IP: {ip}\nUser-Agent: {user_agent}\nShort URL: {short_url}\nOriginal URL: {original_url_no_https}"
+        "content": f"<@938005604230918204> IP: {ip}\nUser-Agent: {user_agent}\nShort URL: {short_url}\nOriginal URL: {original_url_no_https}\n\nGeolocation Info:\n{geo_info}"
     }
+    
     # Send the webhook request
     response = requests.post(DISCORD_WEBHOOK_URL, json=data)
     if response.status_code != 204:
