@@ -19,12 +19,14 @@ It's a Python Flask web app. You can use it as a normal link shortener, but it w
 
 3. Log in to Discord, create a new server, and generate a webhook for that server
 
-3. Run``` 
+3. Run
+``` 
 docker run -d -p 80:8080 --name loggify \
   -e URL_SHORTENER_USERNAME='admin' \
   -e URL_SHORTENER_PASSWORD='admin' \
   -e DISCORD_WEBHOOK_URL='WEBHOOK' \
-  loggify```
+  loggify
+```
 
 4. Replace 'WEBHOOK' with the discord webhook
 
