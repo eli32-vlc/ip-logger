@@ -61,10 +61,51 @@ Default Password: admin
 
 11. Go to 'Environment Variables' and add a these variables
 
-| Name | Value |
-| -------- | ------- |
-| DISCORD_WEBHOOK_URL  | Your webhook    |
-| URL_SHORTENER_USERNAME | Your admin username     |
-| URL_SHORTENER_PASSWORD    | Your admin password    |
+    | Name | Value |
+    | -------- | ------- |
+    | DISCORD_WEBHOOK_URL  | Your webhook    |
+    | URL_SHORTENER_USERNAME | Your admin username     |
+    | URL_SHORTENER_PASSWORD    | Your admin password    |
 
 12. Click 'deploy'
+
+13. Click on 'Links'
+
+14. Click the first link in the dropdown
+    
+---
+### Deploy Guide (Manual with python)
+
+1. Make sure python and git is installed
+
+2. Open powershell/terminal
+
+    > Do not use cmd!!
+
+3. Run ```git clonehttps://github.com/eli32-vlc/ip-logger.git```
+
+4. Run ```cd ip-logger```
+
+5. Run ```pip install -r requirements.txt```
+
+6. Run ```export DISCORD_WEBHOOK_URL=Your webhook```
+
+7. Run ```export URL_SHORTENER_USERNAME=Your admin username```
+
+8. Run ```export URL_SHORTENER_PASSWORD=Your admin username```
+
+9.  Run ```python app.py```
+
+10.  Open the url display in the terminal
+
+
+---
+### Deploy Guide (Render.com)
+
+> This deploy method is unreliable! Your url will not work after 5 minutes of inactivity!
+
+1. Create a new web service
+
+2. Click 'Build and deploy from a Git repository'
+
+3. Click 'Next'
