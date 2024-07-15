@@ -28,7 +28,7 @@ docker run -d -p 80:8080 --name loggify \
   loggify
 ```
 
-4. Replace 'WEBHOOK' with the discord webhook
+4. Replace 'WEBHOOK' with your discord webhook
 
 5. Visit http://localhost
 
@@ -37,5 +37,34 @@ Default Username: admin
 Default Password: admin
 
 ---
+### Deploy Guide (Coolify)
 
+1. Create a new project
 
+2. Go to 'production' environment
+
+3. Add a new resource
+
+4. Click 'public repository'
+
+5. Paste in ```https://github.com/eli32-vlc/ip-logger.git```
+
+6. Click on 'Build Pack'
+
+7. Choose 'Dockerfile'
+
+8. Click on 'Continue'
+
+9. Go down to 'Ports Exposes' and change it to 8080
+
+10. Log in to Discord, create a new server, and generate a webhook for that server
+
+11. Go to 'Environment Variables' and add a these variables
+
+| Name | Value |
+| -------- | ------- |
+| DISCORD_WEBHOOK_URL  | Your webhook    |
+| URL_SHORTENER_USERNAME | Your admin username     |
+| URL_SHORTENER_PASSWORD    | Your admin password    |
+
+12. Click 'deploy'
