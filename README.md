@@ -11,6 +11,8 @@ Once, I was dealing with a scammer on Discord. I wanted to use Grabify to pull h
 
 It's a Python Flask web app. You can use it as a normal link shortener, but it will send the victim's IP to a Discord webhook. It also displays geolocation and timezone in the Discord message. You need a server to host this, as well as a Discord account. A custom domain is not required.
 
+---
+
 ### Deploy Guide (Docker)
 
 1. Install docker
