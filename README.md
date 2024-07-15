@@ -17,11 +17,13 @@ It's a Python Flask web app. You can use it as a normal link shortener, but it w
 
 1. Install docker
 
-2. Run ```docker build -t loggify . ```
+2. Open a terminal/powershell
 
-3. Log in to Discord, create a new server, and generate a webhook for that server
+3. Run ```docker build -t loggify . ```
 
-3. Run
+4. Log in to Discord, create a new server, and generate a webhook for that server
+
+5. Run
 ``` 
 docker run -d -p 80:8080 --name loggify \
   -e URL_SHORTENER_USERNAME='admin' \
@@ -30,9 +32,9 @@ docker run -d -p 80:8080 --name loggify \
   loggify
 ```
 
-4. Replace 'WEBHOOK' with your discord webhook
+6. Replace 'WEBHOOK' with your discord webhook
 
-5. Visit http://localhost
+7. Visit http://localhost
 
 Default Username: admin
 
@@ -69,7 +71,7 @@ Default Password: admin
     | URL_SHORTENER_USERNAME | Your admin username     |
     | URL_SHORTENER_PASSWORD    | Your admin password    |
 
-12. Click 'deploy'
+12. Click on 'deploy'
 
 13. Click on 'Links'
 
@@ -84,21 +86,23 @@ Default Password: admin
 
     > Do not use cmd!!
 
-3. Run ```git clonehttps://github.com/eli32-vlc/ip-logger.git```
+3. Run ```git clone https://github.com/eli32-vlc/ip-logger.git```
 
 4. Run ```cd ip-logger```
 
 5. Run ```pip install -r requirements.txt```
 
-6. Run ```export DISCORD_WEBHOOK_URL=Your webhook```
+6. Log in to Discord, create a new server, and generate a webhook for that server
 
-7. Run ```export URL_SHORTENER_USERNAME=Your admin username```
+7. Run ```export DISCORD_WEBHOOK_URL=Your webhook```
 
-8. Run ```export URL_SHORTENER_PASSWORD=Your admin username```
+8. Run ```export URL_SHORTENER_USERNAME=Your admin username```
 
-9.  Run ```python app.py```
+9. Run ```export URL_SHORTENER_PASSWORD=Your admin username```
 
-10.  Open the url display in the terminal
+10.  Run ```python app.py```
+
+111.  Open the url display in the terminal
 
 
 ---
@@ -108,6 +112,53 @@ Default Password: admin
 
 1. Create a new web service
 
-2. Click 'Build and deploy from a Git repository'
+2. Click on 'Build and deploy from a Git repository'
 
-3. Click 'Next'
+3. Click on 'Next'
+
+4. Scroll down till you see 'Public Git repository'
+
+5. Paste in this url ```https://github.com/eli32-vlc/ip-logger.git```
+
+6. Click on 'Continue'
+
+7. Change 'Instance Type' to 'Free'
+
+8. Scroll to 'Environment Variables'
+
+9. Log in to Discord, create a new server, and generate a webhook for that server
+
+10.  Click 'Add from .env'
+
+11. Paste this in:
+    ```
+    URL_SHORTENER_USERNAME='Admin Username'
+    URL_SHORTENER_PASSWORD='Admin Password'
+    DISCORD_WEBHOOK_URL='WEBHOOk'
+    ```
+12. Replace Admin Username with your own username.
+
+13. Replace Admin Password with your own password.
+
+14. Change WEBHOOK to your Discord webhook URL.
+
+15. Click on 'Deploy Web Service'
+
+16. Click the link and login.
+
+---
+### LICENSE
+
+Check LICENSE file
+
+---
+### Contacts
+
+Email: lyu63651@gmail.com
+
+Discord: zenithrifle
+
+
+
+
+
